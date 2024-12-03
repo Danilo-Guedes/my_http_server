@@ -1,5 +1,6 @@
 use crate::http::Request;
-use std::{io::Read, net::TcpListener};
+use std::io::{Read, Write};
+use std::net::TcpListener;
 
 pub struct Server {
     addr: String,
@@ -25,7 +26,8 @@ impl Server {
                             print!("Received a request: {}", String::from_utf8_lossy(&buffer)); // lossy replaces invalid utf-8 sequences with �
                             match Request::try_from(&buffer[..]) {
                                 Ok(request) => {
-                                    unimplemented!();
+                                    dbg!(request);
+                                    write!(stream, "HTTP/1.1 200 OK\r\n\r\n");
                                 }
                                 Err(e) => eprintln!("Failed to parse a request: {}", e),
                             }
