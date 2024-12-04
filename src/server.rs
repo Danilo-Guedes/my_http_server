@@ -1,5 +1,5 @@
-use crate::http::Request;
-use std::io::{Read, Write};
+use crate::http::{ParseError, Request, Response, StatusCode};
+use std::io::Read;
 use std::net::TcpListener;
 
 pub struct Server {
@@ -11,7 +11,7 @@ impl Server {
         Self { addr }
     }
 
-    pub fn run(self) {
+    pub fn run(self, mut handler: impl Handler) {
         let listener = TcpListener::bind(&self.addr).unwrap();
 
         println!("Listening on {}", &self.addr);
@@ -24,21 +24,37 @@ impl Server {
                     match stream.read(&mut buffer) {
                         Ok(_) => {
                             print!("Received a request: {}", String::from_utf8_lossy(&buffer)); // lossy replaces invalid utf-8 sequences with �
-                            match Request::try_from(&buffer[..]) {
+
+                            let response = match Request::try_from(&buffer[..]) {
                                 Ok(request) => {
-                                    dbg!(request);
-                                    write!(stream, "HTTP/1.1 200 OK\r\n\r\n");
+                                    dbg!(&request);
+                                    handler.handle_request(&request)
                                 }
-                                Err(e) => eprintln!("Failed to parse a request: {}", e),
+                                Err(e) => {
+                                   handler.handle_bad_request(&e)
+                                }
+                            };
+                            if let Err(e) = response.send(&mut stream) {
+                                eprintln!("Failed to send response: {}", e);
                             }
                         }
                         Err(e) => eprintln!("Failed to read from connection: {}", e),
                     }
                 }
+
                 Err(e) => {
                     eprintln!("Failed to establish a connection: {}", e);
                 }
             }
         }
+    }
+}
+
+
+pub trait Handler {
+    fn handle_request(&mut self, request: &Request) -> Response;
+    fn handle_bad_request(&mut self, e: &ParseError) -> Response {
+        eprintln!("Failed to parse a request: {}", e);
+        Response::new(StatusCode::BadRequest, None)
     }
 }

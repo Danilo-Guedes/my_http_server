@@ -17,8 +17,6 @@ impl StatusCode {
     }
 }
 
-
-
 impl Display for StatusCode {
     fn fmt(&self, f: &mut Formatter) -> FmtResult {
         write!(f, "{}", *self as u16)
