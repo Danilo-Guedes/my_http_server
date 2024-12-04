@@ -30,9 +30,7 @@ impl Server {
                                     dbg!(&request);
                                     handler.handle_request(&request)
                                 }
-                                Err(e) => {
-                                   handler.handle_bad_request(&e)
-                                }
+                                Err(e) => handler.handle_bad_request(&e),
                             };
                             if let Err(e) = response.send(&mut stream) {
                                 eprintln!("Failed to send response: {}", e);
@@ -49,7 +47,6 @@ impl Server {
         }
     }
 }
-
 
 pub trait Handler {
     fn handle_request(&mut self, request: &Request) -> Response;

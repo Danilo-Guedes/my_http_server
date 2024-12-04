@@ -1,0 +1,32 @@
+body {
+  background-color: black;
+  color: white;
+  text-align: center;
+  padding-top: 40px;
+}
+
+.navigation {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  border-bottom: 1px solid white;
+  padding: 20px;
+}
+
+.link_list {
+  list-style-type: none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin: 0;
+}
+
+.link {
+  margin: 0 10px;
+  color: white;
+  text-decoration: none;
+  font-size: 1.5em;
+}
